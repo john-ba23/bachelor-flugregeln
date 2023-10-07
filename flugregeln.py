@@ -22,15 +22,19 @@ class Duty(Protocol):
 
 #1
 def isEarly(duty: Duty) -> bool:
-    """Check if a Duty started before 09:00 LT"""
-    first_leg = duty.legs[0]  # Erstes Leg der Duty
+    # Get the first leg in the duty
+    first_leg = duty.legs[0]
+
+    # Check if the departure time in local time is before 9 AM
     return first_leg.depLt.time() < time(9, 0)
 
 #2
 def isLate(duty: Duty) -> bool:
-    """Check if a Duty started after 21:00 LT"""
-    last_leg = duty.legs[-1]  # Letztes Leg der Duty
-    return last_leg.depLt.time() >= time(21, 0)
+    # Get the last leg in the duty
+    last_leg = duty.legs[-1]
+
+    # Check if the arrival time in local time is after 9 PM
+    return last_leg.arrLt.time() > time(21, 0)
 
 #3
 def reducedRest(duty1: Duty, duty2: Duty) -> bool:
@@ -147,18 +151,18 @@ def restTime(duty: Duty) -> bool:
     return True  # Sufficient rest time
 
 #10
-def maxEarlyDuties(duties: Sequence[Duty]) -> bool:
-    early_shift_count = 0  # Zähler für aufeinander folgende Frühschichten
+def maxEarlyDuties(pairing: Sequence[Duty]) -> bool:
+    consecutive_early_count = 0
 
-    for duty in duties:
+    for duty in pairing:
         if isEarly(duty):
-            early_shift_count += 1
-            if early_shift_count > 3:
-                return False
+            consecutive_early_count += 1
+            if consecutive_early_count > 3:
+                return True
         else:
-            early_shift_count = 0
+            consecutive_early_count = 0  # Reset the count if it's not consecutive
 
-    return True
+    return False
 
 
 #11 duty limit not max actitivty
